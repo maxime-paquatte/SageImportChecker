@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SageImportChecker", "SageImportChecker\SageImportChecker.csproj", "{599D17EB-0CD3-4157-8194-AF01D2B02F62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SageModel", "SageModel\SageModel.csproj", "{F8C8497D-EB9D-4650-B5B6-0A6914EAB210}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{599D17EB-0CD3-4157-8194-AF01D2B02F62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599D17EB-0CD3-4157-8194-AF01D2B02F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599D17EB-0CD3-4157-8194-AF01D2B02F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599D17EB-0CD3-4157-8194-AF01D2B02F62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8C8497D-EB9D-4650-B5B6-0A6914EAB210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8C8497D-EB9D-4650-B5B6-0A6914EAB210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8C8497D-EB9D-4650-B5B6-0A6914EAB210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8C8497D-EB9D-4650-B5B6-0A6914EAB210}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

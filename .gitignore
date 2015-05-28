@@ -1,0 +1,7 @@
+packages/
+*.suo
+SageImportChecker/bin/
+SageImportChecker/obj/
+SageModel/bin/
+SageModel/obj/
+*.csproj.user
