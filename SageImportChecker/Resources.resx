@@ -162,4 +162,7 @@
   <data name="ConfigWriteSampleSuccess" xml:space="preserve">
     <value>Le fichier d'exemple a été créé :</value>
   </data>
+  <data name="RubricNotFound" xml:space="preserve">
+    <value>Pas de valeur pour la rubrique {0} sur le matricule {1}</value>
+  </data>
 </root>

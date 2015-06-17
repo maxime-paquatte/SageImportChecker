@@ -58,6 +58,7 @@ namespace SageImportChecker
                                 string val = string.Empty;
                                 if (model.Values.ContainsKey(c.Rubrique))
                                     val = model.Values[c.Rubrique].GetValue(c.FieldName) ?? string.Empty;
+                                else WriteWarning(Resources.RubricNotFound, c.Rubrique, matricule);
 
                                 int a, b;
                                 if (!c.IsNumeric && val != record ||
@@ -196,6 +197,15 @@ namespace SageImportChecker
             Console.ForegroundColor = c;
 
             File.AppendAllText(_logPath, message + Environment.NewLine);
+        }
+
+        static void WriteWarning(string message, params object[] args)
+        {
+            var c = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+
+            Console.WriteLine(message, args);
+            Console.ForegroundColor = c;
         }
     }
 }

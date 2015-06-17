@@ -187,6 +187,15 @@ namespace SageImportChecker {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pas de valeur pour la rubrique {0} sur le matricule {1}.
+        /// </summary>
+        internal static string RubricNotFound {
+            get {
+                return ResourceManager.GetString("RubricNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Aucune erreur trouvée.
         /// </summary>
         internal static string SuccessMessage {
