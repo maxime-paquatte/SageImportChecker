@@ -17,12 +17,14 @@ namespace SageImportChecker
 {
     class Program
     {
-        
+
         private static string _logPath;
 
 
         static void Main(string[] args)
         {
+
+            var warningBuilder = new StringBuilder();
             _logPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "", "Erreurs.txt");
             if (File.Exists(_logPath)) File.Delete(_logPath);
 
@@ -32,7 +34,7 @@ namespace SageImportChecker
                 var models = LoadSageImportFile();
 
                 Regex matriculeRegex = null;
-                if (!string.IsNullOrEmpty(config.MatriculeRegex)) 
+                if (!string.IsNullOrEmpty(config.MatriculeRegex))
                     matriculeRegex = new Regex(config.MatriculeRegex);
 
                 string csvFile = PromptVerifCsvFile();
@@ -43,8 +45,8 @@ namespace SageImportChecker
                     while (csv.Read())
                     {
                         var mField = csv.GetField<String>(0);
-                        var matricule = matriculeRegex != null 
-                            ? matriculeRegex.Match(mField).Groups[1].Value 
+                        var matricule = matriculeRegex != null
+                            ? matriculeRegex.Match(mField).Groups[1].Value
                             : mField;
 
                         if (models.ContainsKey(matricule))
@@ -58,12 +60,12 @@ namespace SageImportChecker
                                 string val = string.Empty;
                                 if (model.Values.ContainsKey(c.Rubrique))
                                     val = model.Values[c.Rubrique].GetValue(c.FieldName) ?? string.Empty;
-                                else WriteWarning(Resources.RubricNotFound, c.Rubrique, matricule);
+                                else warningBuilder.AppendFormat(Resources.RubricNotFound, c.Rubrique, matricule).AppendLine();
 
-                                int a, b;
+                                float a, b;
                                 if (!c.IsNumeric && val != record ||
-                                    (int.TryParse(val.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out a) ? a : 0) !=
-                                    (int.TryParse(record.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out b) ? b : 0))
+                                    (float.TryParse(val.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out a) ? a : 0) !=
+                                    (float.TryParse(record.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out b) ? b : 0))
                                 {
                                     if (!_hasError)
                                     {
@@ -85,11 +87,12 @@ namespace SageImportChecker
                     WriteError(Resources.MatriculeNotFoundInCsv + model.Matricule);
                 }
 
-                if (!_hasError)
+                if (!_hasError && warningBuilder.Length == 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine(Resources.SuccessMessage);
                 }
+                WriteWarning(warningBuilder.ToString());
 
             }
             Console.WriteLine(Resources.PressKeyToQuit);
@@ -149,7 +152,7 @@ namespace SageImportChecker
                     employees.Add(matricule, employee = new EmployeeToCheck(matricule));
 
                 var value = Employee.ParseValue(line);
-                if(value != null) employee.AddValue(value);
+                if (value != null) employee.AddValue(value);
             }
 
             Console.WriteLine(Resources.NbMatriculeLoaded, employees.Count);
@@ -199,12 +202,12 @@ namespace SageImportChecker
             File.AppendAllText(_logPath, message + Environment.NewLine);
         }
 
-        static void WriteWarning(string message, params object[] args)
+        static void WriteWarning(string message)
         {
             var c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.DarkYellow;
 
-            Console.WriteLine(message, args);
+            Console.WriteLine(message);
             Console.ForegroundColor = c;
         }
     }
