@@ -18,9 +18,12 @@ namespace SageModel
             Matricule = matricule;
         }
 
-        public void AddValue(IRubricValue m)
+        public bool AddValue(IRubricValue m)
         {
+            if (Values.ContainsKey(m.Rubric))
+                return false;
             Values.Add(m.Rubric, m);
+            return true;
         }
 
         public static IRubricValue ParseValue(string line)

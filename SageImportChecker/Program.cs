@@ -33,59 +33,66 @@ namespace SageImportChecker
             {
                 var models = LoadSageImportFile();
 
-                Regex matriculeRegex = null;
-                if (!string.IsNullOrEmpty(config.MatriculeRegex))
-                    matriculeRegex = new Regex(config.MatriculeRegex);
-
-                string csvFile = PromptVerifCsvFile();
-                using (TextReader textReader = File.OpenText(csvFile))
+                if (!_hasError)
                 {
-                    textReader.ReadLine();//Read periode line
-                    var csv = new CsvReader(textReader, new CsvConfiguration { Delimiter = config.CsvDelimiter ?? ";" });
-                    while (csv.Read())
+
+                    Regex matriculeRegex = null;
+                    if (!string.IsNullOrEmpty(config.MatriculeRegex))
+                        matriculeRegex = new Regex(config.MatriculeRegex);
+
+                    string csvFile = PromptVerifCsvFile();
+                    using (TextReader textReader = File.OpenText(csvFile))
                     {
-                        var mField = csv.GetField<String>(0);
-                        var matricule = matriculeRegex != null
-                            ? matriculeRegex.Match(mField).Groups[1].Value
-                            : mField;
-
-                        if (models.ContainsKey(matricule))
+                        textReader.ReadLine();//Read periode line
+                        var csv = new CsvReader(textReader, new CsvConfiguration { Delimiter = config.CsvDelimiter ?? ";" });
+                        while (csv.Read())
                         {
+                            var mField = csv.GetField<String>(0);
+                            var matricule = matriculeRegex != null
+                                ? matriculeRegex.Match(mField).Groups[1].Value
+                                : mField;
 
-                            var model = models[matricule];
-
-                            foreach (var c in config.Values)
+                            if (models.ContainsKey(matricule))
                             {
-                                var record = csv.GetField<String>(c.ExcelColumnIdx);
-                                string val = string.Empty;
-                                if (model.Values.ContainsKey(c.Rubrique))
-                                    val = model.Values[c.Rubrique].GetValue(c.FieldName) ?? string.Empty;
-                                else warningBuilder.AppendFormat(Resources.RubricNotFound, c.Rubrique, matricule).AppendLine();
 
-                                float a, b;
-                                if (!c.IsNumeric && val != record ||
-                                    (float.TryParse(val.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out a) ? a : 0) !=
-                                    (float.TryParse(record.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out b) ? b : 0))
+                                var model = models[matricule];
+
+                                foreach (var c in config.Values)
                                 {
-                                    if (!_hasError)
-                                    {
-                                        WriteError(string.Join(" | ", "Matricule".PadRight(10), "Rubrique".PadRight(40), "Csv".PadRight(8), "Text".PadRight(8)));
-                                        WriteError(new string('-', 4 + 10 + 40 + 8 + 8));
-                                    }
-                                    WriteError(string.Join(" | ", matricule.PadRight(10), (csv.FieldHeaders[c.ExcelColumnIdx] + " (" + c.Rubrique + ")").PadRight(40), record.PadRight(8), val.PadRight(8)));
-                                }
+                                    var record = csv.GetField<String>(c.ExcelColumnIdx);
+                                    string val = string.Empty;
+                                    if (model.Values.ContainsKey(c.Rubrique))
+                                        val = model.Values[c.Rubrique].GetValue(c.FieldName) ?? string.Empty;
+                                    else warningBuilder.AppendFormat(Resources.RubricNotFound, c.Rubrique, matricule).AppendLine();
 
+                                    float a, b;
+                                    if (!c.IsNumeric && val != record ||
+                                        (float.TryParse(val.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out a) ? a : 0) !=
+                                        (float.TryParse(record.Replace(',', '.'), NumberStyles.Number, CultureInfo.GetCultureInfo(9), out b) ? b : 0))
+                                    {
+                                        if (!_hasError)
+                                        {
+                                            WriteError(string.Join(" | ", "Matricule".PadRight(10), "Rubrique".PadRight(40), "Csv".PadRight(8), "Text".PadRight(8)));
+                                            WriteError(new string('-', 4 + 10 + 40 + 8 + 8));
+                                        }
+                                        WriteError(string.Join(" | ", matricule.PadRight(10), (csv.FieldHeaders[c.ExcelColumnIdx] + " (" + c.Rubrique + ")").PadRight(40), record.PadRight(8), val.PadRight(8)));
+                                    }
+
+                                }
+                                model.Checked = true;
                             }
-                            model.Checked = true;
+                            else WriteError(Resources.MatriculeNotFoundInTxt + matricule);
                         }
-                        else WriteError(Resources.MatriculeNotFoundInTxt + matricule);
+
+
+                        foreach (var model in models.Values.Where(m => !m.Checked))
+                        {
+                            WriteError(Resources.MatriculeNotFoundInCsv + model.Matricule);
+                        }
                     }
                 }
 
-                foreach (var model in models.Values.Where(m => !m.Checked))
-                {
-                    WriteError(Resources.MatriculeNotFoundInCsv + model.Matricule);
-                }
+               
 
                 if (!_hasError && warningBuilder.Length == 0)
                 {
@@ -151,8 +158,10 @@ namespace SageImportChecker
                 if (!employees.TryGetValue(matricule, out employee))
                     employees.Add(matricule, employee = new EmployeeToCheck(matricule));
 
-                var value = Employee.ParseValue(line);
-                if (value != null) employee.AddValue(value);
+                var m = Employee.ParseValue(line);
+                if (m == null) continue;
+                if (!employee.AddValue(m))
+                    WriteError(string.Format(Resources.UnableToAddRubric, employee.Matricule, m.Rubric));
             }
 
             Console.WriteLine(Resources.NbMatriculeLoaded, employees.Count);

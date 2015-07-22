@@ -165,4 +165,7 @@
   <data name="RubricNotFound" xml:space="preserve">
     <value>Pas de valeur pour la rubrique {0} sur le matricule {1}</value>
   </data>
+  <data name="UnableToAddRubric" xml:space="preserve">
+    <value>Matricule {0}, Impossible dajouter la rubrique "{1}", peut être a-t-elle déjà été ajoutée</value>
+  </data>
 </root>
